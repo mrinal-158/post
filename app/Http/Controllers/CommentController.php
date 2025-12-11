@@ -2,47 +2,78 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Comment;
+use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function create(Request $request, $postID)
     {
-        //
+        $request->validate([
+            'body' => 'required|string|max:255',
+        ]);
+        
+        $data = $request->only(['body']);
+        $data['user_id'] = Auth::user()->id;
+        $data['post_id'] = $postID;
+        
+        $comment = Comment::create($data);
+
+        return response()->json([
+            'post_id' => $postID,
+            'comment' => $request->body,
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function show($postID)
     {
-        //
+        $post = Post::with(['user', 'comments.user'])
+                ->withCount('likes')
+                ->findOrFail($postID);
+        return response()->json([
+            'post_id' => $post->id,
+            'comments' => $post->comments->pluck('body'),
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+    public function update(Request $request, $commentID){
+        $comment = Comment::where('id', $commentID)->first();
+        $user = auth()->user();
+        if($comment->user_id != $user->id){
+            return response()->json([
+                'message' => 'Unauthorized comment to update!',
+            ]);
+        }
+
+        $request->validate([
+            'body' => 'required|string|max:255',
+        ]);
+
+        $comment->body = $request->body;
+        $comment->save();
+
+        return response()->json([
+            'message' => 'Comment update success!',
+            'body' => $request->body,
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy($commentID)
     {
-        //
-    }
+        $comment = Comment::where('id', $commentID)->first();
+        $user = auth()->user();
+        if($comment->user_id != $user->id){
+            return response()->json([
+                'message' => 'Unauthorized comment to delete!',
+            ]);
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $comment->delete();
+
+        return response()->json([
+            'message' => 'Comment delete success!',
+        ]);
     }
 }

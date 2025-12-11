@@ -19,11 +19,11 @@ class PostController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show($postID)
     {
         $post = Post::with(['user', 'comments.user'])
                 ->withCount('likes')
-                ->findOrFail($id);
+                ->findOrFail($postID);
 
         return response()->json([
             'post_id'     => $post->id,
@@ -32,7 +32,7 @@ class PostController extends Controller
             'body'        => $post->body,
             'image'       => $post->image,
             'total_likes' => $post->likes_count,
-            'comments'    => $post->comments,
+            'comments'    => $post->comments->pluck('body'),
         ]);
     }
 

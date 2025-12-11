@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PostController;
 use Illuminate\Http\Request;
@@ -25,6 +26,12 @@ Route::middleware('auth:api')->group(function() {
     //Likes
     Route::post('/like-post/{id}', [LikeController::class, 'toggle']);
     Route::get('total-like-post/{id}', [LikeController::class, 'total']);
+
+    //Comments
+    Route::post('/create-comment/{id}', [CommentController::class, 'create']);
+    Route::get('/view-comment/{id}', [CommentController::class, 'show']);
+    Route::post('update-comment/{id}', [CommentController::class, 'update']);
+    Route::delete('delete-comment/{id}', [CommentController::class, 'destroy']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
 });
