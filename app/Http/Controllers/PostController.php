@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Notifications\JustNotify;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 
 class PostController extends Controller
 {
@@ -71,6 +70,7 @@ class PostController extends Controller
 
         $post = Post::create($data);
 
+        $user->notify(new JustNotify('Your post has been created successfully!'));
         return response()->json([
             'message' => 'Post created success!',
             'post' => $post,
@@ -110,6 +110,7 @@ class PostController extends Controller
 
         $post->update($data);
 
+        $user->notify(new JustNotify('Your post has been updated successfully!'));
         return response()->json([
             'message' => 'Post updated success!',
             'post' => $post,
@@ -132,6 +133,7 @@ class PostController extends Controller
         }
         $post->delete();
 
+        $user->notify(new JustNotify('Your post has been deleted successfully!'));
         return response()->json(['message' => 'Post deleted']);
     }
 
@@ -154,6 +156,7 @@ class PostController extends Controller
                 'created_at'  => $post->created_at->toDateTimeString(),
             ];
         }
+
         return response()->json([
             'posts' => $result,
         ]);

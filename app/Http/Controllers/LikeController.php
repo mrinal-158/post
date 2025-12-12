@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\User;
+use App\Notifications\JustNotify;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,6 +18,7 @@ class LikeController extends Controller
         if($post->isLikedBy($user->id)){
             $post->likes()->where('user_id', $user->id)->delete();
 
+            $user->notify(new JustNotify('You have unliked a post.'));
             return response()->json([
                 'message' => 'Unliked',
             ]);
@@ -26,6 +28,7 @@ class LikeController extends Controller
                 'user_id' => $user->id,
             ]);
 
+            $user->notify(new JustNotify('You have liked a post.'));
             return response()->json([
                 'message' => 'Liked',
             ]);

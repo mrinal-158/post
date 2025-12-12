@@ -12,9 +12,18 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('/register', [AuthController::class, 'register'])->name('register');
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/verify-otp', [AuthController::class, 'verifyOTP'])->name('verify-otp');
+Route::post('/resend-otp', [AuthController::class, 'resendOTP'])->name('resend-otp');
+Route::post('/login', [AuthController::class, 'login'])->name('login')->name('login');
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('forgot-password');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('reset-password');
 
 Route::middleware('auth:api')->group(function() {
+    //AuthController
+    Route::get('/me', [AuthController::class, 'me']);
+    Route::post('/update-profile', [AuthController::class, 'updateProfile']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::delete('/delete-account', [AuthController::class, 'delete']);
     //PostController
     Route::get('/posts', [PostController::class, 'index']);
     Route::get('/post/{id}', [PostController::class, 'show']);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Comment;
 use App\Models\Post;
+use App\Notifications\JustNotify;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -23,6 +24,7 @@ class CommentController extends Controller
         
         $comment = Comment::create($data);
 
+        $user->notify(new JustNotify('Your comment has been added successfully!'));
         return response()->json([
             'post_id' => $postID,
             'comment' => $request->body,
@@ -45,11 +47,13 @@ class CommentController extends Controller
 
         $comment = Comment::where('id', $commentID)->first();
         if(!$comment){
+            $user->notify(new JustNotify('Attempted to update a non-existent comment!'));
             return response()->json([
                 'message' => 'Comment already deleted!',
             ]);
         }
         if($comment->user_id != $user->id){
+            $user->notify(new JustNotify('Unauthorized attempt to update a comment!'));
             return response()->json([
                 'message' => 'Unauthorized comment to update!',
             ]);
@@ -62,6 +66,7 @@ class CommentController extends Controller
         $comment->body = $request->body;
         $comment->save();
 
+        $user->notify(new JustNotify('Your comment has been updated successfully!'));
         return response()->json([
             'message' => 'Comment update success!',
             'body' => $request->body,
@@ -74,6 +79,7 @@ class CommentController extends Controller
         
         $comment = Comment::where('id', $commentID)->first();
         if($comment->user_id != $user->id){
+            $user->notify(new JustNotify('Unauthorized attempt to delete a comment!'));
             return response()->json([
                 'message' => 'Unauthorized comment to delete!',
             ]);
@@ -81,6 +87,7 @@ class CommentController extends Controller
 
         $comment->delete();
 
+        $user->notify(new JustNotify('Your comment has been deleted successfully!'));
         return response()->json([
             'message' => 'Comment delete success!',
         ]);
