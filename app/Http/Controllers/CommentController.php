@@ -11,12 +11,14 @@ class CommentController extends Controller
 {
     public function create(Request $request, $postID)
     {
+        $user = Auth::user();
+
         $request->validate([
             'body' => 'required|string|max:255',
         ]);
         
         $data = $request->only(['body']);
-        $data['user_id'] = Auth::user()->id;
+        $data['user_id'] = $user->id;
         $data['post_id'] = $postID;
         
         $comment = Comment::create($data);
@@ -39,8 +41,14 @@ class CommentController extends Controller
     }
 
     public function update(Request $request, $commentID){
+        $user = Auth::user();
+
         $comment = Comment::where('id', $commentID)->first();
-        $user = auth()->user();
+        if(!$comment){
+            return response()->json([
+                'message' => 'Comment already deleted!',
+            ]);
+        }
         if($comment->user_id != $user->id){
             return response()->json([
                 'message' => 'Unauthorized comment to update!',
@@ -62,8 +70,9 @@ class CommentController extends Controller
 
     public function destroy($commentID)
     {
+        $user = Auth::user();
+        
         $comment = Comment::where('id', $commentID)->first();
-        $user = auth()->user();
         if($comment->user_id != $user->id){
             return response()->json([
                 'message' => 'Unauthorized comment to delete!',

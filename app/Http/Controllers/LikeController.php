@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LikeController extends Controller
 {
     public function toggle(Request $request, $postID){
-        $user = auth()->user();
+        $user = Auth::user();
+        
         $post = Post::findOrFail($postID);
 
         if($post->isLikedBy($user->id)){

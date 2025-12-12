@@ -25,7 +25,7 @@ Route::middleware('auth:api')->group(function() {
 
     //Likes
     Route::post('/like-post/{id}', [LikeController::class, 'toggle']);
-    Route::get('total-like-post/{id}', [LikeController::class, 'total']);
+    Route::get('/total-like-post/{id}', [LikeController::class, 'total']);
 
     //Comments
     Route::post('/create-comment/{id}', [CommentController::class, 'create']);

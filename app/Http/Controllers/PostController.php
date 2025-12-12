@@ -4,18 +4,34 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class PostController extends Controller
 {
     public function index(Request $request){
-        $posts = Post::where('user_id', '!=', auth()->id())
-                ->orderByDesc('created_at')
-                ->paginate(10);
+        $posts = Post::orderByDesc('created_at')
+                ->withCount('likes')
+                ->with(['user'])
+                ->get();
+
+        $result = [];
+
+        foreach ($posts as $post) {
+            $result[] = [
+                'post_id'     => $post->id,
+                'author_name' => $post->user->name,
+                'title'       => $post->title,
+                'body'        => $post->body,
+                'image'       => $post->image,
+                'total_likes' => $post->likes_count,
+                'created_at'  => $post->created_at->toDateTimeString(),
+            ];
+        }
 
         return response()->json([
-            'posts' => $posts,
+            'posts' => $result
         ]);
     }
 
@@ -30,20 +46,18 @@ class PostController extends Controller
             'author_name' => $post->user->name,
             'title'       => $post->title,
             'body'        => $post->body,
-            'image'       => $post->image,
             'total_likes' => $post->likes_count,
             'comments'    => $post->comments->pluck('body'),
         ]);
     }
 
     public function create(Request $request){
+        $user = Auth::user();
         $request->validate([
             'title' => 'required|string|max:255',
             'body' => 'required|string',
             'image' => 'nullable|image',
         ]);
-
-        $user = auth()->user();
         
         $data = $request->only(['title', 'body']);
         $data['user_id'] = $user->id;
@@ -64,7 +78,8 @@ class PostController extends Controller
     }
 
     public function update(Request $request, $post_id){
-        $user = auth()->user();
+        $user = Auth::user();
+
         $post = Post::findOrFail($post_id);
 
         if($post->user_id != $user->id){
@@ -103,7 +118,7 @@ class PostController extends Controller
 
     public function destroy($id)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         $post = Post::findOrFail($id);
 
         if ($post->user_id !== $user->id) {
@@ -120,9 +135,27 @@ class PostController extends Controller
         return response()->json(['message' => 'Post deleted']);
     }
 
-    public function myPosts()
+    public function myPosts(Request $request)
     {
-        $posts = auth()->user()->posts()->withCount('likes')->orderByDesc('created_at')->get();
-        return response()->json($posts);
+        $user = Auth::user();
+        $posts = Post::where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->withCount('likes')
+                ->with(['user'])
+                ->get();
+        
+        $result = [];
+        foreach ($posts as $post) {
+            $result[] = [
+                'post_id'     => $post->id,
+                'title'       => $post->title,
+                'body'        => $post->body,
+                'total_likes' => $post->likes_count,
+                'created_at'  => $post->created_at->toDateTimeString(),
+            ];
+        }
+        return response()->json([
+            'posts' => $result,
+        ]);
     }
 }
