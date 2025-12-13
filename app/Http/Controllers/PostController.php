@@ -46,6 +46,7 @@ class PostController extends Controller
             'title'       => $post->title,
             'body'        => $post->body,
             'total_likes' => $post->likes_count,
+            'image'      => $post->image,
             'comments'    => $post->comments->pluck('body'),
         ]);
     }

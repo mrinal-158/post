@@ -53,28 +53,18 @@ class LikeController extends Controller
     public function commentToggle(Request $request, $commentID){
         $user = Auth::user();
         
-        $comment = Comment::where('id', $commentID)->first();
-        if(!$comment){
-            $user->notify(new JustNotify('Attempted to like a non-existent comment!'));
-            return response()->json([
-                'message' => 'Comment not found!',
-            ]);
-        }
+        $comment = Comment::findOrFail($commentID);
+        if($comment->isLikedBy($user->id)){
+            $comment->likes()->where('user_id', $user->id)->delete();
 
-        $like = Like::where('user_id', $user->id)
-                ->where('post_id', $commentID)
-                ->first();
-        if($like){
-            $like->delete();
             $user->notify(new JustNotify('You have unliked a comment.'));
             return response()->json([
                 'message' => 'Unliked',
             ]);
         }
         else{
-            Like::create([
+            $comment->likes()->create([
                 'user_id' => $user->id,
-                'post_id' => $commentID,
             ]);
 
             $user->notify(new JustNotify('You have liked a comment.'));

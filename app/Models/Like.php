@@ -31,4 +31,9 @@ class Like extends Model
     {
         return $this->belongsTo(Reply::class);
     }
+
+    public function likeable()
+    {
+        return $this->morphTo();
+    }
 }

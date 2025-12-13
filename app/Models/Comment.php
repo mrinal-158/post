@@ -29,7 +29,7 @@ class Comment extends Model
 
     public function likes()
     {
-        return $this->hasMany(Like::class);
+        return $this->morphMany(Like::class, 'likeable');
     }
 
     public function isLikedBy($userId): bool
@@ -37,8 +37,8 @@ class Comment extends Model
         return $this->likes()->where('user_id', $userId)->exists();
     }
 
-    public function replies()
+    public function likesCount()
     {
-        return $this->hasMany(Reply::class, 'comments_id');
+        return $this->likes()->count();
     }
 }

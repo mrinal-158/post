@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('likes', function (Blueprint $table) {
+        Schema::create('comment_likes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->morphs('likeable');
+            $table->foreignId('comment_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
+
+            $table->unique(['comment_id', 'user_id']); // prevent duplicate likes
         });
     }
 
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('likes');
+        Schema::dropIfExists('comment_likes');
     }
 };

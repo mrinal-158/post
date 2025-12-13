@@ -14,16 +14,24 @@ class Reply extends Model
         return $this->belongsTo(Comment::class, 'comments_id');
     }
 
-    public function likes() {
-        return $this->hasMany(Like::class, 'post_id');
+    public function likes()
+    {
+        return $this->morphMany(Like::class, 'likeable');
     }
 
     public function user() {
         return $this->belongsTo(User::class);
     }
 
-    public function replys()
+    public function isLikedBy($userId): bool
     {
-        return $this->hasMany(Reply::class, 'comments_id');
+        return $this->likes()->where('user_id', $userId)->exists();
     }
+
+    public function likesCount()
+    {
+        return $this->likes()->count();
+    }
+
+    
 }
