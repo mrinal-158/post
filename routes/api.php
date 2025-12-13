@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LikeController;
@@ -54,4 +55,14 @@ Route::middleware('auth:api')->group(function() {
     Route::get('/total-like-reply/{id}', [LikeController::class, 'replyTotal']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
+});
+
+
+Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function(){
+    Route::get('/dashboard', [AdminController::class, 'admin']);
+    Route::post('/access-to-admin/{id}', [AdminController::class, 'accessToAdmin']);
+    Route::delete('/delete-user/{id}', [AdminController::class, 'deleteUser']);
+    Route::delete('/delete-post/{id}', [AdminController::class, 'deletePost']);
+    Route::delete('/delete-comment/{id}', [AdminController::class, 'deleteComment']);
+    Route::delete('/delete-reply/{id}', [AdminController::class, 'deleteReply']);
 });

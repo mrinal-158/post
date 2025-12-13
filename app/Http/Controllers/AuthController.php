@@ -85,7 +85,7 @@ class AuthController extends Controller
         $user->otp_expires_at = null;
         $user->email_verified_at = Carbon::now();
         $user->save();
-
+        
         $user->notify(new JustNotify('Your email has been verified successfully!'));
         return response()->json([
             'message' => 'OTP verified successfully!',

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('role')->default('user')->after('id');  // user or admin
+            $table->enum('role', ['user', 'admin'])->default('user')->after('id');  // user or admin
             $table->string('otp')->nullable()->after('password');
             $table->dateTime('otp_expires_at')->nullable()->after('otp');
         });
