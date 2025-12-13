@@ -120,9 +120,17 @@ class PostController extends Controller
     public function destroy($id)
     {
         $user = Auth::user();
-        $post = Post::findOrFail($id);
+        $post = Post::where('id', $id)->first();
+
+        if(!$post){
+            $user->notify(new JustNotify('Attempted to delete a non-existent post!'));
+            return response()->json([
+                'message' => 'Post not found',
+            ]);
+        }
 
         if ($post->user_id !== $user->id) {
+            $user->notify(new JustNotify('Unauthorized attempt to delete post!'));
             return response()->json([
                 'message' => 'Forbidden',
             ]);

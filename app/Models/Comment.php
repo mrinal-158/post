@@ -21,4 +21,24 @@ class Comment extends Model
     {
         return $this->belongsTo(Post::class);
     }
+
+    public function reply()
+    {
+        return $this->hasMany(Reply::class, 'comments_id');
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+
+    public function isLikedBy($userId): bool
+    {
+        return $this->likes()->where('user_id', $userId)->exists();
+    }
+
+    public function replies()
+    {
+        return $this->hasMany(Reply::class, 'comments_id');
+    }
 }

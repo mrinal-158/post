@@ -78,6 +78,12 @@ class CommentController extends Controller
         $user = Auth::user();
         
         $comment = Comment::where('id', $commentID)->first();
+        if(!$comment){
+            $user->notify(new JustNotify('Attempted to delete a non-existent comment!'));
+            return response()->json([
+                'message' => 'Comment already deleted!',
+            ]);
+        }
         if($comment->user_id != $user->id){
             $user->notify(new JustNotify('Unauthorized attempt to delete a comment!'));
             return response()->json([

@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\ReplyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -32,15 +33,25 @@ Route::middleware('auth:api')->group(function() {
     Route::delete('/delete-post/{id}', [PostController::class, 'destroy']);
     Route::get('/my-post', [PostController::class, 'myPosts']);
 
-    //Likes
-    Route::post('/like-post/{id}', [LikeController::class, 'toggle']);
-    Route::get('/total-like-post/{id}', [LikeController::class, 'total']);
-
-    //Comments
+    //CommentController
     Route::post('/create-comment/{id}', [CommentController::class, 'create']);
     Route::get('/view-comment/{id}', [CommentController::class, 'show']);
     Route::post('update-comment/{id}', [CommentController::class, 'update']);
     Route::delete('delete-comment/{id}', [CommentController::class, 'destroy']);
+
+    //ReplyController
+    Route::post('/create-reply/{id}', [ReplyController::class, 'create']);
+    Route::get('/view-reply/{id}', [ReplyController::class, 'show']);
+    Route::post('update-reply/{id}', [ReplyController::class, 'update']);
+    Route::delete('delete-reply/{id}', [ReplyController::class, 'destroy']);
+
+    //LikeController
+    Route::post('/like-post/{id}', [LikeController::class, 'postToggle']);
+    Route::get('/total-like-post/{id}', [LikeController::class, 'postTotal']);
+    Route::post('/like-comment/{id}', [LikeController::class, 'commentToggle']);
+    Route::get('/total-like-comment/{id}', [LikeController::class, 'commentTotal']);
+    Route::post('/like-reply/{id}', [LikeController::class, 'replyToggle']);
+    Route::get('/total-like-reply/{id}', [LikeController::class, 'replyTotal']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
 });

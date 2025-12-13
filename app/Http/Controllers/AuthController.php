@@ -35,7 +35,7 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'User Registration successful, please verify OTP sent to your email.',
             'user' => $user,
-        ]);
+        ]);                                                                              
     }
 
     public function resendOTP(Request $request){
@@ -115,7 +115,7 @@ class AuthController extends Controller
 
         $token = JWTAuth::attempt($request->only('email', 'password'));
 
-        $user->notify(new UserNotification(null, 'You have logged in to Google!'));
+        $user->notify(new JustNotify('Login successful!'));
         return response()->json([
             'message' => 'Login successful',
             'token' => $token,
