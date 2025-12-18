@@ -56,25 +56,30 @@ class PostController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'body' => 'required|string',
-            'image' => 'nullable|image',
+            'images*' => 'nullable|image',
         ]);
         
-        $data = $request->only(['title', 'body']);
-        $data['user_id'] = $user->id;
+        $post = Post::create([
+            'user_id' => $user->id,
+            'title' => $request->title,
+            'body' => $request->body,
+        ]);
 
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $name = time().'_'.$image->getClientOriginalName();
-            $image->move(public_path('posts'), $name);
-            $data['image'] = 'posts/'.$name;
+        if($request->hasFile('images')){
+            foreach($request->file('images') as $image){
+                $name = time().'_'.$image->getClientOriginalName();
+                $image->move(public_path('posts'), $name);
+                $post->postImages()->create([
+                    'image' => 'posts/'.$name,
+                ]);
+            }
         }
-
-        $post = Post::create($data);
 
         $user->notify(new JustNotify('Your post has been created successfully!'));
         return response()->json([
             'message' => 'Post created success!',
             'post' => $post,
+            'images' => $post->postImages,
         ]);
     }
 
